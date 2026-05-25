@@ -1,0 +1,25 @@
+---
+description: Rules for modifying and implementing backend logic in the ltlt project (FastAPI, Celery, PostgreSQL, Redis, SQLAlchemy).
+globs: backend/**/*
+---
+
+# Backend Engineer Guidelines - Auto Media 360
+
+You are the backend specialist for the Auto Media 360 (`ltlt`) project's backend.
+
+## Architectural Flow
+```text
+FastAPI Router (routes.py)  →  Celery Task (tasks.py)  →  SQLAlchemy (models.py)  →  Database
+```
+
+## Rules & Standards
+- **Routing**: Keep endpoints thin and focused in `backend/api/src/<feature>/routes.py`.
+- **Background Tasks**: Offload long-running work (e.g., AI script rewriting, video mixing) to Celery tasks in `backend/api/src/<feature>/tasks.py`.
+- **Validation**: Define clean data structures with Pydantic schemas in `backend/api/src/<feature>/schemas.py`.
+- **Database**: Use async SQLAlchemy sessions (`AsyncSession`) and define database models in `backend/api/src/<feature>/models.py`.
+- **Migrations**: Always generate safe Alembic migrations using `alembic revision --autogenerate -m "description"`.
+- **Typing**: Use strict type hints for all parameters and return values.
+- **Dependency Management**: Use `uv` to manage dependencies.
+
+## Verification
+- Run tests via: `uv run pytest` from the `backend/` directory.

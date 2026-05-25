@@ -1,0 +1,115 @@
+# Claude Code rules for Auto Media 360
+
+This rule set defines core quality standards, guidelines, and boundaries for the Auto Media 360 (`ltlt`) project.
+
+## 1. Behavioral Guidelines
+
+### Think Before Coding
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them rather than picking silently.
+- Push back if a simpler approach is possible.
+
+### Simplicity First
+- Minimum code to solve the problem. No speculative features or abstractions.
+- If you write 200 lines and it could be 50, rewrite it.
+
+### Surgical Changes
+- Touch only what you must. Match existing style.
+- Clean up imports/variables/functions that your changes made unused. Do not remove pre-existing dead code unless asked.
+
+### Goal-Driven Execution
+- Define success criteria before coding (e.g., write a test first, then pass it).
+
+---
+
+## 2. Core Quality Gates
+- Keep TypeScript strict and avoid `any`.
+- No unused imports, variables, or function parameters.
+- Keep lint, type-check, and build green after substantive changes.
+
+---
+
+## 3. Naming Conventions
+
+### Frontend
+- Folder names: `kebab-case`
+- Component files: `PascalCase.tsx`
+- Hook files: `useXxx.ts` / `useXxx.tsx`
+- Types and interfaces: `PascalCase`
+- Constants: `UPPER_SNAKE_CASE`
+
+### Backend
+- Directory names: `snake_case`
+- Python files: `snake_case.py`
+- Class names: `PascalCase`
+- Variables & functions: `snake_case`
+
+---
+
+## 4. Boundaries & Structure
+
+### Backend (FastAPI + Celery)
+- **`backend/api/main.py`**: FastAPI app entry point.
+- **`backend/api/core/`**: Global configuration (database, celery, middleware, logging).
+- **`backend/api/src/<feature>/`**: Feature-specific routes, tasks, schemas, and models.
+
+### Frontend (React + TanStack Router + Tailwind v4)
+- **`frontend/src/routes/`**: Focused strictly on routing and layouts.
+- **`frontend/src/features/`**: Smart business components, data hooks, and stores. Do not place business logic in route files.
+- **`frontend/src/components/ui/`**: Pure UI elements (Shadcn primitives). Decoupled from business domain models.
+
+---
+
+## 5. UI Color System
+- Always use CSS variables from `theme.css` / `index.css` for styling.
+- Never use arbitrary Tailwind color values (e.g., `bg-blue-500`, `text-red-600`). Use semantic tokens like `bg-primary`, `text-foreground`.
+
+---
+
+## 6. Local Run & Verification
+
+### Local Run & Hot Reload
+```bash
+docker compose up --watch
+```
+
+### Windows Docker Setup
+If Docker/Docker Compose is not installed on a Windows environment, coding agents must automatically execute (or guide the user to run with Administrator privileges) the following PowerShell commands to install WSL 2 and Docker Desktop:
+```powershell
+wsl --install
+winget install Docker.DockerDesktop
+```
+
+### Backend
+```bash
+# From /backend
+uv run pytest
+```
+
+### Frontend
+```bash
+# From /frontend
+pnpm run lint
+pnpm run build
+pnpm run test
+```
+
+---
+
+## 7. Git & Commit Workflow Rules
+To maintain codebase sanity for our team, all coding agents and engineers must follow this Git workflow:
+- **Never commit directly to `master` / `main`**. Always create a new branch from `master` before writing any code.
+- **Branch naming convention**:
+  - `feat/<feature-name>` for new features.
+  - `fix/<bug-name>` for bug fixes.
+  - `chore/<task-name>` for configuration/tooling updates.
+- **Commit messages** must follow Conventional Commits: `<type>: <short-description>` (e.g. `feat: add user login component`, `fix: resolve db session pool leak`).
+  - Allowed types: `feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `test`.
+
+---
+
+## 8. Specialized Agent Rules
+This project includes specialized agent instructions:
+- Cursor IDE configurations under `.cursor/rules/`
+- General agent files under `.agents/agent/`
+- Codex configurations under `.codex/agent/`

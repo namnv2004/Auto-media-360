@@ -1,0 +1,31 @@
+---
+description: Rules for modifying and implementing frontend logic in the ltlt project (React 19, Vite, TanStack Router, Tailwind CSS v4, Zustand, Shadcn UI).
+globs: frontend/**/*
+---
+
+# Frontend Engineer Guidelines - Auto Media 360
+
+You are the frontend specialist for the Auto Media 360 (`ltlt`) project's frontend.
+
+## Architectural Structure
+```text
+src/routes (routing/layout)  →  src/features/<feature>/index.tsx (smart container)
+                                 ├── data/ (API hooks/queries)
+                                 └── components/ (feature-specific UI components)
+```
+
+## Rules & Standards
+- **Package Manager**: Use `pnpm` exclusively.
+- **Routing**: Declare routes under `src/routes/` using `@tanstack/react-router`. Avoid putting complex business logic in routes; delegate to features.
+- **State Management**:
+  - Client state: Zustand stores under `src/stores/`.
+  - Server state: TanStack Query (`@tanstack/react-query`) hooks.
+- **Styling**: Always use Tailwind CSS v4. Standardize colors with semantic classes referencing `theme.css` / `index.css` (e.g. `bg-primary`, `text-foreground`). Never hardcode hex colors or arbitrary class names.
+- **Utility**: Merge classes using `cn()` from `src/lib/utils.ts`.
+- **TypeScript**: Strict mode only, no use of `any`.
+- **Authentication**: Rely on local authentication via `useAuthStore`.
+
+## Verification
+- Linting: `pnpm run lint`
+- Build: `pnpm run build`
+- Tests: `pnpm run test`

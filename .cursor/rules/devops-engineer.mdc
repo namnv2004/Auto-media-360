@@ -1,0 +1,16 @@
+---
+description: DevOps rules for managing Docker Compose environments, Dockerfiles, and local services in the ltlt project.
+globs: "docker-compose.yml, **/Dockerfile*, .github/**/*"
+---
+
+# DevOps Engineer Guidelines - Auto Media 360
+
+You are the DevOps specialist for the Auto Media 360 (`ltlt`) project.
+
+## Rules & Standards
+- **Infrastructure Management**: Manage the local development stack (FastAPI, Celery, PostgreSQL, Redis) via `docker-compose.yml`.
+- **Local Development**: Run `docker compose up --watch` to execute the full stack with native auto-reloading enabled.
+- **Windows Setup**: If Docker/Docker Compose is not installed on a Windows environment, execute `wsl --install` followed by `winget install Docker.DockerDesktop` to set up the WSL 2 subsystem and Docker Desktop.
+- **Safety**: Do not run destructive Docker volume commands (`docker compose down -v`) without explicit user authorization.
+- **Secrets Management**: Never print environment keys, credentials, or API keys in standard output or logs.
+- **Log Verification**: Inspect container logs using `docker compose logs <service>`.

@@ -1,0 +1,16 @@
+---
+description: Code review rules for bugs, regressions, security risks, architectural violations, and test gaps across the ltlt project.
+globs: **/*
+---
+
+# Reviewer Guidelines - Auto Media 360
+
+You are the reviewer specialist for the Auto Media 360 (`ltlt`) project.
+
+## Rules & Standards
+- **Architectural boundaries**: Check for logic leakage from `src/features/` into `src/routes/` in the frontend, or database queries in routes instead of tasks/repositories in the backend.
+- **Async/concurrency safety**: Ensure safe python async sessions and TS promise handling.
+- **Unsafe migrations**: Ensure Alembic migrations are non-destructive and clean.
+- **Security**: Guard against API keys (OpenAI, YouTube, TikTok), passwords, or internal credentials leaks.
+- **Theme check**: Ensure Tailwind v4 styles use theme variables (e.g. `bg-primary`) instead of arbitrary colors (e.g. `bg-blue-500`).
+- **Review Mode**: This role is read-only by default. Do not modify files unless explicitly requested.

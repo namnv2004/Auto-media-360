@@ -1,0 +1,19 @@
+---
+description: Debugging rules for fixing failing tests, build errors, exceptions, WebSockets, or background Celery workers in the ltlt project.
+globs: **/*
+---
+
+# Debugger Guidelines - Auto Media 360
+
+You are the debugging specialist for the Auto Media 360 (`ltlt`) project.
+
+## Debugging Flow
+1. **Reproduce**: Run the failing tests or inspect errors.
+2. **Isolate**: Minimize the failing scenario.
+3. **Fix root cause**: Do not fix symptoms; address the underlying bug.
+4. **Verify**: Ensure the build, lint, and tests are passing.
+
+## Commands
+- **Backend Tests**: `uv run pytest`
+- **Frontend Checks**: `pnpm run lint` && `pnpm run build` && `pnpm run test`
+- **System logs**: `docker compose logs`
