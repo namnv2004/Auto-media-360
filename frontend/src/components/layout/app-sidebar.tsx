@@ -5,6 +5,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from '@/components/ui/sidebar'
 // import { AppTitle } from './app-title'
 import { sidebarData } from './data/sidebar-data'
@@ -28,8 +29,11 @@ export function AppSidebar() {
           <NavGroup key={props.title} {...props} />
         ))}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className='gap-2'>
         <NavUser user={sidebarData.user} />
+        <div className='hidden md:flex justify-end group-data-[state=collapsed]:justify-center px-1'>
+          <SidebarTrigger />
+        </div>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

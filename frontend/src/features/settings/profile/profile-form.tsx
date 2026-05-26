@@ -1,177 +1,141 @@
-import { z } from 'zod'
-import { useFieldArray, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
+import { Eye, EyeOff, Key } from 'lucide-react'
 
-const profileFormSchema = z.object({
-  username: z
-    .string('Please enter your username.')
-    .min(2, 'Username must be at least 2 characters.')
-    .max(30, 'Username must not be longer than 30 characters.'),
-  email: z.email({
-    error: (iss) =>
-      iss.input === undefined
-        ? 'Please select an email to display.'
-        : undefined,
-  }),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.url('Please enter a valid URL.'),
-      })
-    )
-    .optional(),
-})
+export function APIKeysForm() {
+  const [geminiKey, setGeminiKey] = useState('')
+  const [youtubeKey, setYoutubeKey] = useState('')
+  const [tiktokKey, setTiktokKey] = useState('')
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+  const [showGemini, setShowGemini] = useState(false)
+  const [showYoutube, setShowYoutube] = useState(false)
+  const [showTiktok, setShowTiktok] = useState(false)
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: 'I own a computer.',
-  urls: [
-    { value: 'https://shadcn.com' },
-    { value: 'http://twitter.com/shadcn' },
-  ],
-}
+  // Load API Keys from localStorage on mount
+  useEffect(() => {
+    setGeminiKey(localStorage.getItem('gemini_api_key') || '')
+    setYoutubeKey(localStorage.getItem('youtube_api_key') || '')
+    setTiktokKey(localStorage.getItem('tiktok_api_key') || '')
+  }, [])
 
-export function ProfileForm() {
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues,
-    mode: 'onChange',
-  })
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Save to localStorage
+    localStorage.setItem('gemini_api_key', geminiKey.trim())
+    localStorage.setItem('youtube_api_key', youtubeKey.trim())
+    localStorage.setItem('tiktok_api_key', tiktokKey.trim())
+    
+    toast.success('Cấu hình API Keys của bạn đã được cập nhật thành công!')
+  }
 
-  const { fields, append } = useFieldArray({
-    name: 'urls',
-    control: form.control,
-  })
+  const handleClear = () => {
+    setGeminiKey('')
+    setYoutubeKey('')
+    setTiktokKey('')
+    localStorage.removeItem('gemini_api_key')
+    localStorage.removeItem('youtube_api_key')
+    localStorage.removeItem('tiktok_api_key')
+    toast.success('Đã xóa tất cả API Keys cá nhân. Hệ thống sẽ sử dụng các Keys mặc định từ backend.')
+  }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit((data) => showSubmittedData(data))}
-        className='space-y-8'
-      >
-        <FormField
-          control={form.control}
-          name='username'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name. It can be your real name or a
-                pseudonym. You can only change this once every 30 days.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a verified email to display' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='m@example.com'>m@example.com</SelectItem>
-                  <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                  <SelectItem value='m@support.com'>m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                You can manage verified email addresses in your{' '}
-                <Link to='/'>email settings</Link>.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='bio'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='Tell us a little bit about yourself'
-                  className='resize-none'
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                You can <span>@mention</span> other users and organizations to
-                link to them.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div>
-          {fields.map((field, index) => (
-            <FormField
-              control={form.control}
-              key={field.id}
-              name={`urls.${index}.value`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                    URLs
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && 'sr-only')}>
-                    Add links to your website, blog, or social media profiles.
-                  </FormDescription>
-                  <FormControl className={cn(index !== 0 && 'mt-1.5')}>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+    <form onSubmit={handleSave} className="space-y-6 max-w-xl">
+      <div className="space-y-5">
+        
+        {/* Gemini API Key */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <Key className="w-4 h-4 text-primary" />
+            <span>Gemini API Key</span>
+          </label>
+          <div className="relative">
+            <Input
+              type={showGemini ? 'text' : 'password'}
+              value={geminiKey}
+              onChange={(e) => setGeminiKey(e.target.value)}
+              placeholder="Nhập Gemini API Key của bạn (ví dụ: AIzaSy...)"
+              className="pr-10 h-10 border-border bg-card"
             />
-          ))}
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='mt-2'
-            onClick={() => append({ value: '' })}
-          >
-            Add URL
-          </Button>
+            <button
+              type="button"
+              onClick={() => setShowGemini(!showGemini)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+            >
+              {showGemini ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Sử dụng cho tính năng viết lại kịch bản, phân tích nội dung đối thủ cạnh tranh bằng AI.
+          </p>
         </div>
-        <Button type='submit'>Update profile</Button>
-      </form>
-    </Form>
+
+        {/* YouTube API Key */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <Key className="w-4 h-4 text-primary" />
+            <span>YouTube Data API Key</span>
+          </label>
+          <div className="relative">
+            <Input
+              type={showYoutube ? 'text' : 'password'}
+              value={youtubeKey}
+              onChange={(e) => setYoutubeKey(e.target.value)}
+              placeholder="Nhập YouTube API Key của bạn"
+              className="pr-10 h-10 border-border bg-card"
+            />
+            <button
+              type="button"
+              onClick={() => setShowYoutube(!showYoutube)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+            >
+              {showYoutube ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Sử dụng cho tính năng cào dữ liệu danh sách video, kênh từ YouTube Data v3 API.
+          </p>
+        </div>
+
+        {/* TikTok API Key */}
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <Key className="w-4 h-4 text-primary" />
+            <span>TikTok API Key (Tùy chọn)</span>
+          </label>
+          <div className="relative">
+            <Input
+              type={showTiktok ? 'text' : 'password'}
+              value={tiktokKey}
+              onChange={(e) => setTiktokKey(e.target.value)}
+              placeholder="Nhập TikTok API Key nếu có"
+              className="pr-10 h-10 border-border bg-card"
+            />
+            <button
+              type="button"
+              onClick={() => setShowTiktok(!showTiktok)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+            >
+              {showTiktok ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Sử dụng cho các chức năng nghiên cứu TikTok nâng cao.
+          </p>
+        </div>
+
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <Button type="submit" className="bg-primary hover:bg-primary-hover text-primary-foreground">
+          Lưu cấu hình
+        </Button>
+        <Button type="button" variant="outline" onClick={handleClear} className="border-border text-foreground hover:bg-muted/50">
+          Xóa cấu hình cá nhân
+        </Button>
+      </div>
+    </form>
   )
 }

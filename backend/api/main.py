@@ -2,8 +2,9 @@ from fastapi import FastAPI
 
 from api.core.config import settings
 from api.core.logging import get_logger, setup_logging
-from api.src.crawler.routes import router as crawler_router
+from api.src.tiktok_research.routes import router as tiktok_research_router
 from api.src.video_engine.routes import router as video_engine_router
+from api.src.youtube_research.routes import router as youtube_research_router
 from api.utils.migrations import run_migrations
 from api.core.middleware import auth_middleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,8 +33,10 @@ app.add_middleware(
 app.middleware("http")(auth_middleware)
 
 # Include routers
-app.include_router(prefix="/api/v1/crawler", router=crawler_router)
+app.include_router(prefix="/api/v1/tiktok-research", router=tiktok_research_router)
 app.include_router(prefix="/api/v1/video", router=video_engine_router)
+app.include_router(prefix="/api/v1/youtube-research", router=youtube_research_router)
+
 
 
 @app.get("/health")

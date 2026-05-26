@@ -107,3 +107,4 @@ coverage/
 **/__screenshots__/
 .next/
 out/
+.playwright-mcp/
