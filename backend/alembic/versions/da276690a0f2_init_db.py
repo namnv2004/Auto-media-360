@@ -1,8 +1,8 @@
-"""add youtube research tables
+"""init_db
 
-Revision ID: bb7d24960f0f
-Revises: c4c28ad2f92b
-Create Date: 2026-05-26 02:24:06.319395
+Revision ID: da276690a0f2
+Revises: 
+Create Date: 2026-05-26 04:00:57.662770
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'bb7d24960f0f'
-down_revision: Union[str, None] = 'c4c28ad2f92b'
+revision: str = 'da276690a0f2'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -30,14 +30,62 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('tiktok_research_projects',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('keyword', sa.String(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('video_jobs',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('keyword', sa.String(length=255), nullable=True),
+    sa.Column('source_url', sa.String(length=1024), nullable=True),
+    sa.Column('status', sa.String(length=50), nullable=True),
+    sa.Column('job_type', sa.String(length=50), nullable=False),
+    sa.Column('full_script', sa.Text(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('script_segments',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('job_id', sa.UUID(), nullable=False),
+    sa.Column('order_index', sa.Integer(), nullable=False),
+    sa.Column('text', sa.Text(), nullable=False),
+    sa.Column('keyword', sa.String(length=255), nullable=True),
+    sa.Column('image_url', sa.String(length=1024), nullable=True),
+    sa.Column('video_url', sa.String(length=1024), nullable=True),
+    sa.ForeignKeyConstraint(['job_id'], ['video_jobs.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('tiktok_trend_results',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('project_id', sa.UUID(), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('views', sa.String(length=50), nullable=True),
+    sa.Column('likes', sa.String(length=50), nullable=True),
+    sa.Column('comments', sa.String(length=50), nullable=True),
+    sa.Column('engagement', sa.String(length=50), nullable=True),
+    sa.Column('age_group', sa.String(length=100), nullable=True),
+    sa.Column('script_hook', sa.Text(), nullable=True),
+    sa.Column('script_body', sa.Text(), nullable=True),
+    sa.Column('script_cta', sa.Text(), nullable=True),
+    sa.Column('hashtags', sa.Text(), nullable=True),
+    sa.Column('music', sa.String(length=255), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.ForeignKeyConstraint(['project_id'], ['tiktok_research_projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('youtube_channels',
     sa.Column('id', sa.String(length=255), nullable=False),
     sa.Column('project_id', sa.UUID(), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=True),
     sa.Column('url', sa.String(length=1024), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('subscriber_count', sa.Integer(), nullable=True),
-    sa.Column('view_count', sa.Integer(), nullable=True),
+    sa.Column('subscriber_count', sa.BigInteger(), nullable=True),
+    sa.Column('view_count', sa.BigInteger(), nullable=True),
     sa.Column('video_count', sa.Integer(), nullable=True),
     sa.Column('country', sa.String(length=50), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
@@ -54,9 +102,9 @@ def upgrade() -> None:
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('published_at', sa.String(length=100), nullable=True),
     sa.Column('duration', sa.String(length=50), nullable=True),
-    sa.Column('view_count', sa.Integer(), nullable=True),
-    sa.Column('like_count', sa.Integer(), nullable=True),
-    sa.Column('comment_count', sa.Integer(), nullable=True),
+    sa.Column('view_count', sa.BigInteger(), nullable=True),
+    sa.Column('like_count', sa.BigInteger(), nullable=True),
+    sa.Column('comment_count', sa.BigInteger(), nullable=True),
     sa.Column('thumbnail_url', sa.String(length=1024), nullable=True),
     sa.Column('keyword_source', sa.String(length=255), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
@@ -105,5 +153,9 @@ def downgrade() -> None:
     op.drop_table('ai_analyses')
     op.drop_table('youtube_videos')
     op.drop_table('youtube_channels')
+    op.drop_table('tiktok_trend_results')
+    op.drop_table('script_segments')
+    op.drop_table('video_jobs')
+    op.drop_table('tiktok_research_projects')
     op.drop_table('research_projects')
     # ### end Alembic commands ###
